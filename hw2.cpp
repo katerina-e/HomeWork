@@ -89,7 +89,7 @@ void BrLine(int x1,int y1, int x2,int  y2,TGAImage& image, TGAColor color){
 
 return;
 }
-void CDAline (int x1, int y1, int x2, int y2,TGAImage& image, TGAColor color){
+void DDAline (int x1, int y1, int x2, int y2,TGAImage& image, TGAColor color){
 
   int dx = x2-x1;
   int dy = y2-y1;
@@ -107,6 +107,7 @@ void CDAline (int x1, int y1, int x2, int y2,TGAImage& image, TGAColor color){
     y2 = ty;
   };
 
+    if(dy>0){
      if(dx<dy){
        int d1x = 1;
        int d1y = absdy/absdx;
@@ -116,15 +117,36 @@ void CDAline (int x1, int y1, int x2, int y2,TGAImage& image, TGAColor color){
           y = y+d1y;
       }
      }
-    /* else{ cout<<"yes"<<endl;
-       int d1x = 1;
-       int d1y = absdy/absdx;
+     else{
+       int d1x = absdx/absdy;
+       int d1y = 1;
        while(x<=x2){
           image.set(x,y,color);
           x = x+d1x;
           y = y+d1y;
       }
-     }*/
+     }
+    }
+    else{
+       if(absdx<absdy){
+         int d1x = 1;
+         int d1y = absdy/absdx;
+         while(x<=x2){
+           image.set(x,y,color);
+           x = x+d1x;
+           y = y-d1y;
+         }
+       }
+       else{
+         int d1x = absdx/absdy;
+         int d1y = 1;
+        while(x<=x2){
+          image.set(x,y,color);
+          x = x+d1x;
+          y = y-d1y;
+        }
+       }
+    }
 return;
 }
 
@@ -202,7 +224,7 @@ int main(int argc, char** argv) {
 	TGAImage image(100, 100, TGAImage::RGB);
 	//BrLine(20,80,40,30,image, red);
 	image.set(50, 50, red);
-	CDAline(20,20,40,60,image,red);
+	DDAline(10,70,70,60,image,red);
 	//CircleBr (50,50,30,image,white);
 	//CirclePar(50,50,30,image,white);
 	//Circle(50,50,30,image,white);
