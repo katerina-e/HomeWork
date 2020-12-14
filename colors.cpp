@@ -1,5 +1,6 @@
 ﻿
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 void fromCMYtoRGB(double* arrFrom, double* arrTo) {
@@ -55,7 +56,7 @@ void fromHSVtoRGB(double* arr) {
         arr[1] = v1;
         arr[2] = v3;
     }
-    for (int i = 0; i < 3; i++) {  
+    for (int i = 0; i < 3; i++) {
         arr[i] = arr[i] * 0.01;
     }
      return;
@@ -102,82 +103,116 @@ void fromHSLtoRGB(double *arr) {
 }
 
 void fromRGBtoCMYK(double* arrRGB,double* arrCMYK) {
-    
+
     fromCMYtoRGB(arrRGB, arrRGB);
 
-    double min = 1.0;
+    double minA = 1.0;
     for (int i = 0; i < 3; i++) {
-        if (arrRGB[i] < min) {
-            min = arrRGB[i];
+        if (arrRGB[i] < minA) {
+            minA = arrRGB[i];
         }
     }
     for (int i = 0; i < 3; i++) {
-        arrCMYK[i] = (arrRGB[i] - min) / (1.0 - min);
+        arrCMYK[i] = (arrRGB[i] - minA) / (1.0 - minA);
     }
-    arrCMYK[3] = min;
+    arrCMYK[3] = minA;
+    fromCMYtoRGB(arrRGB, arrRGB);
     return;
 };
 
 void fromRGBtoHSV(double* arr, double* arrHSV) {
-    double min = arr[0];
-    double max = arr[0];
+    double minA = arr[0];
+    double maxA = arr[0];
     for (int i = 0; i < 3; i++) {
-        if (min > arr[i])
-            min = arr[i];
-        if (max < arr[i])
-            max = arr[i];
+        if (minA > arr[i])
+            minA = arr[i];
+        if (maxA < arr[i])
+            maxA = arr[i];
     }
-    double h = 60.0 * ((arr[1] - arr[2]) / (max - min));
-    if ((max == arr[0]) && (arr[1] >= arr[2]))
+    double h = 60.0 * ((arr[1] - arr[2]) / (maxA - minA));
+    if ((maxA == arr[0]) && (arr[1] >= arr[2]))
         arrHSV[0] = h;
-    if ((max == arr[0]) && (arr[1] < arr[2]))
+    if ((maxA == arr[0]) && (arr[1] < arr[2]))
         arrHSV[0] = h + 360.0;
-    if (max == arr[1])
-        arrHSV[0] = 60.0 * ((arr[2] - arr[0]) / (max - min)) + 120.0;
-    if (max == arr[2])
-        arrHSV[0] = 60.0 * ((arr[0] - arr[1]) / (max - min)) + 240.0;
-    if (max == 0.0)
+    if (maxA == arr[1])
+        arrHSV[0] = 60.0 * ((arr[2] - arr[0]) / (maxA - minA)) + 120.0;
+    if (maxA == arr[2])
+        arrHSV[0] = 60.0 * ((arr[0] - arr[1]) / (maxA - minA)) + 240.0;
+    if (maxA == 0.0)
         arrHSV[1] = 0.0;
-    else arrHSV[1] = 1.0 - (min / max);
-    arrHSV[2] = max;
+    else arrHSV[1] = 1.0 - (minA / maxA);
+    arrHSV[2] = maxA;
     arrHSV[1] = arrHSV[1] * 100.0;
     arrHSV[2] = arrHSV[2] * 100.0;
     return;
 }
 
 void fromRGBtoHSL(double* arr, double* arrHSL) {
-    double min = arr[0];
-    double max = arr[0];
-    for (int i = 1; i < 3; i++) {
-        if (min > arr[i])
-            min = arr[i];
-        if (max < arr[i])
-            max = arr[i];
+    double minA = arr[0];
+    double maxA = arr[0];
+    for (int i = 0; i < 3; i++) {
+        if (minA > arr[i])
+            minA = arr[i];
+        if (maxA < arr[i])
+            maxA = arr[i];
     }
-    double h = 60.0 * ((arr[1] - arr[2]) / (max - min));
-    if ((max == arr[0]) && (arr[1] >= arr[2]))
-        arrHSL[0] = h;
-    if ((max == arr[0]) && (arr[1] < arr[2]))
-        arrHSL[0] = h + 360.0;
-    if (max == arr[1])
-        arrHSL[0] = 60.0 * ((arr[2] - arr[0]) / (max - min)) + 120.0;
-    if (max == arr[2])
-        arrHSL[0] = 60.0 * ((arr[0] - arr[1]) / (max - min)) + 240.0;
-    arrHSL[1] = (max - min) / (1.0 - abs(1.0 - (max + min)));
-    arrHSL[2] = 0.5 * (max + min);
+    if (maxA == minA)
+        arrHSL[0]=0.0;
+    if ((maxA == arr[0]) && (arr[1] >= arr[2]))
+        arrHSL[0] = 60.0 *(arr[1]- arr[2])/(maxA - minA);
+    if ((maxA == arr[0]) && (arr[1] < arr[2]))
+        arrHSL[0] = 60.0 * (arr[1]-arr[2])/(maxA- minA) + 360.0;
+    if (maxA == arr[1])
+        arrHSL[0] = 60.0 *(arr[2] - arr[0]) / (maxA - minA) + 120.0;
+    if (maxA == arr[2])
+        arrHSL[0] = 60.0 * ((arr[0] - arr[1]) / (maxA - minA)) + 240.0;
+
+    //arrHSL[1] = (maxA - minA) / (1.0 - abs(1.0 - (maxA + minA)));
+    arrHSL[2] = (maxA + minA)/ 2;
+
+    if ((arrHSL[2]== 0)||(maxA == minA))
+        arrHSL[1]= 0;
+    if ((arrHSL[2] > 0)&& (arrHSL[2]<= 0.5))
+        arrHSL[1]= (maxA - minA)/(maxA + minA);
+    if ((arrHSL[2] > 0.5)&& (arrHSL[2] < 1))
+        arrHSL[1]= (maxA - minA)/(2.0 - (maxA + minA));
+
     return;
 }
 
 void fromRGBtoXYZ(double* arr, double* arrXYZ) {
-    arrXYZ[0] = 1.13014 * arr[2] + 1.75171 * arr[1] + 2.76883 * arr[0];
-    arrXYZ[1] = 0.06007 * arr[2] + 4.59061 * arr[1] + arr[0];
-    arrXYZ[2] = 5.59417 * arr[2] + 0.05651 * arr[1];
+
+    double r = arr[0];
+    double g = arr[1];
+    double b = arr[2];
+    double sr = 0.04045;
+    if (r > sr)
+        r =pow(((r + 0.055)/ 1.055),2.4);
+    else
+        r = r / 12.92;
+    if (g > sr)
+        g =pow(((g + 0.055)/ 1.055),2.4);
+    else
+        g = g / 12.92;
+    if (b > sr)
+        b =pow(((b + 0.055)/ 1.055),2.4);
+    else
+        b = b / 12.92;
+
+    r = r*100;
+    g = g*100;
+    b = b*100;
+
+    arrXYZ[0]= r * 0.4124 + g * 0.3576 + b * 0.1805;
+    arrXYZ[1]= r * 0.2126 + g * 0.7152 + b * 0.0722;
+    arrXYZ[2]= r * 0.0193 + g * 0.1192 + b * 0.9505;
+
     return;
 }
 
-void printColor(int system, double* arr,int size) {
+void printColor(int system, double* arr,int sizeM) {
     cout << "Your color in model  " << system << " is: ";
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < sizeM; i++) {
         cout << arr[i] << " " << "; ";
     }
     cout << endl;
@@ -216,7 +251,7 @@ int main()
     if (model == 5) {
         fromHSLtoRGB(Dcolor);
     };
-    
+
     printColor(1, Dcolor, 3);
 
     double* aCMY = new double[3];
@@ -238,7 +273,7 @@ int main()
     double* aXYZ = new double[3];
     fromRGBtoXYZ(Dcolor, aXYZ);
     printColor(6, aXYZ, 3);
-    
+
     delete [] aCMYK, aHSV, aHSL, aXYZ, arrCMYK, Dcolor,aCMY;
     return 0;
 }
