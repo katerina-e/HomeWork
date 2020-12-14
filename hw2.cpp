@@ -1,6 +1,7 @@
 #include "tgaimage.h"
 #include "tgaimage.cpp"
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
@@ -159,7 +160,7 @@ for(int i= 1; i<=360; i++){
     int y1= y2;
     x2 = round(r*cos(i))+x0;
     y2 = round(r*sin(i))+x0;
-    BrLine(x1, y1, x2, y2, image, color);
+    image.set(x2,y2,color); //BrLine(x1, y1, x2, y2, image, color);
 }
 return;
 }
@@ -192,7 +193,7 @@ while((x*x)<= R){
 return;
 };
 
-void CircleBr (int x0, int y0,int r, TGAImage& image, TGAColor color ){
+/*void CircleBr (int x0, int y0,int r, TGAImage& image, TGAColor color ){
 
 int x =0;
 int y =r;
@@ -218,16 +219,37 @@ while( y>= 0){
     d= d+2*(x-y);
 }
 return;
+};*/
+
+void CircleBr (int x0, int y0, int r, TGAImage& image, TGAColor color ){
+
+  image.set(x0, y0, white);
+  int d = 3 - 2 * r;
+  int x = x0;
+  int y = y0 + r;
+  float temp = x0 + r/(sqrt(2));
+  while (x < temp){
+    CirclePixel(x0, y0, (x-x0), (y-y0), image, color);
+
+    if (d < 0)
+       d = d + 4*(x-x0) +6;
+    else{
+       d = d + 4*((x-x0)-(y-y0)) + 10;
+       y = y - 1;
+    }
+    x = x + 1;
+  }
+return;
 };
 
 int main(int argc, char** argv) {
 	TGAImage image(100, 100, TGAImage::RGB);
 	//BrLine(20,80,40,30,image, red);
-	image.set(50, 50, red);
-	DDAline(10,70,70,60,image,red);
-	//CircleBr (50,50,30,image,white);
+	//image.set(50, 50, red);
+	//DDAline(20,80,40,30,image,white);
+	CircleBr (20,50,15,image,red);
 	//CirclePar(50,50,30,image,white);
-	//Circle(50,50,30,image,white);
+	//Circle(50,50,15,image,white);
 	image.flip_vertically(); // i want to have the origin at the left bottom corner of the image
 	image.write_tga_file("output.tga");
 	return 0;
